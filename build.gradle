@@ -1,11 +1,13 @@
+import org.ajoberstar.grgit.Grgit
+
+import java.time.ZoneOffset
+
 plugins {
     id "groovy"
     id "com.github.johnrengelman.shadow" version "5.2.0"
     id "application"
-    id "com.gorylenko.gradle-git-properties" version "2.0.0"
+    id "com.gorylenko.gradle-git-properties" version "2.2.0"
 }
-
-
 
 version "0.1"
 group "example.micronaut"
@@ -17,7 +19,7 @@ repositories {
 
 configurations {
     // for dependencies that are needed for development only
-    developmentOnly 
+    developmentOnly
 }
 
 dependencies {
@@ -26,6 +28,7 @@ dependencies {
     compileOnly "io.micronaut:micronaut-inject-groovy"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     implementation "io.micronaut:micronaut-runtime-groovy"
+    implementation "org.ajoberstar.grgit:grgit-core:4.1.0"
     implementation "io.micronaut:micronaut-validation"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
@@ -55,4 +58,11 @@ shadowJar {
 tasks.withType(JavaExec) {
     classpath += configurations.developmentOnly
     jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+}
+
+gitProperties {
+    keys = ['serviceName', 'serviceVersion', 'buildDate']
+    customProperty 'serviceName', { "$serviceName" }
+    customProperty 'serviceVersion', { it.describe(tags: true) }
+    customProperty 'buildDate', { (it as Grgit).head().dateTime.withZoneSameInstant(ZoneOffset.UTC) }
 }

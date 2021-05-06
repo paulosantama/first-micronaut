@@ -3,3 +3,11 @@ micronaut:
     name: complete
   server:
     port: 9090
+---
+endpoints:
+  health:
+    enabled: true
+    details-visible: ANONYMOUS
+  info:
+    enabled: true
+    sensitive: false
